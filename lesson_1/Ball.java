@@ -26,17 +26,17 @@ public class Ball extends Sprite {
         color = new Color(rnd.nextInt());
         // сделаем так что начальное направление движения добавленого мяча будет произвольным
         if(rnd.nextBoolean()){
-            vX = (float) (100f + (Math.random() * 100f));
+            vX = (float) (100f + (Math.random() * 200f));
         }
         else{
-            vX = -(float) (100f + (Math.random() * 100f));
+            vX = -(float) (100f + (Math.random() * 200f));
         }
 
         if(rnd.nextBoolean()){
-            vY = (float) (100f + (Math.random() * 100f));
+            vY = (float) (100f + (Math.random() * 200f));
         }
         else{
-            vY = -(float) (100f + (Math.random() * 100f));
+            vY = -(float) (100f + (Math.random() * 200f));
         }
 
     }

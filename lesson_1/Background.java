@@ -1,39 +1,26 @@
 package ru.geekbrains;
 
 import java.awt.*;
-import java.util.Random;
 
 public abstract class Background {
     static Color color = Color.WHITE;
-    static Random rnd = new Random();
-    static int rColor = 0;
-    static int gColor = 0;
-    static int bColor = 0;
+    private static final float AMPLITUDE = 255f / 2f;
+    private static int rColor = 0;
+    private static int gColor = 0;
+    private static int bColor = 0;
+    private static float time = 0;
 
-    static void setColorBackground(GameCanvas canvas){
-        color = getNextColor();
-        System.out.println(color);
+    static void setColorBackground(GameCanvas canvas, float deltaTime){
+        color = getNextColor(deltaTime);
+        //System.out.println(color);
         canvas.setBackground(color);
     }
 
-    private static Color getNextColor(){
-        // не могу придумать что то хорошее с цветом фона
-        rColor += rnd.nextInt(10);
-        if (rColor >= 150){
-            rColor = 150;
-        }
-        gColor += rnd.nextInt(2);
-        if (gColor >= 255) {
-            gColor = 255;
-            bColor += rnd.nextInt(10);
-        }
-        if (bColor >= 255) {
-            rColor = 0;
-            gColor = 0;
-            bColor = 0;
-        }
-
+    private static Color getNextColor(float deltaTime){
+        time += deltaTime;
+        rColor = Math.round(AMPLITUDE + AMPLITUDE * (float) Math.sin(time * 2f));
+        gColor = Math.round(AMPLITUDE + AMPLITUDE * (float) Math.sin(time * 3f));
+        bColor = Math.round(AMPLITUDE + AMPLITUDE * (float) Math.sin(time));
         return color = new Color(rColor, gColor, bColor);
-
     }
 }
