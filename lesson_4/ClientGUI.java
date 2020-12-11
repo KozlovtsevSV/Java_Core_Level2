@@ -10,6 +10,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class ClientGUI extends JFrame implements KeyListener, ActionListener,
         Thread.UncaughtExceptionHandler {
@@ -89,21 +90,11 @@ public class ClientGUI extends JFrame implements KeyListener, ActionListener,
 
     }
 
-
     public void writeLog(String strLog){
 
-
         String nameFile = NAME_FILE_LOG + LocalDate.now().toString() + ".log";
-        StringBuilder strTemp = new StringBuilder();
         try {
-            strTemp = readTextFile(nameFile);
-        }
-        catch (IOException IOe){
-            // считаем что ситуация нормальная значит за день еще не создан файл (или был поврежден или удален), но ничего мы его далее создадим
-        }
-
-        try {
-            saveTextFile(nameFile, strTemp + strLog+ "\n");
+            saveTextFile(nameFile, LocalDateTime.now().toString().substring(0, 19) + ": " + strLog+ "\n", true);
         }
         catch (IOException IOe){
             // врятли пользователю нужно такое сообщение, хотя тогда он точно сообщит о неполадках (... надо на подумать)
@@ -111,11 +102,9 @@ public class ClientGUI extends JFrame implements KeyListener, ActionListener,
         }
     }
 
+    public static void saveTextFile(String NameFile, String text, Boolean append) throws IOException{
 
-
-    public static void saveTextFile(String NameFile, String text) throws IOException{
-
-        FileOutputStream fos = new FileOutputStream(NameFile);
+        FileOutputStream fos = new FileOutputStream(NameFile, append);
         PrintStream ps = new PrintStream(fos);
         ps.print(text);
         ps.close();
@@ -127,6 +116,7 @@ public class ClientGUI extends JFrame implements KeyListener, ActionListener,
 
         FileInputStream fis = new FileInputStream(NameFile);
         InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+
         int b;
         while ((b = isr.read()) != -1){
             result.append((char) b);
@@ -151,14 +141,6 @@ public class ClientGUI extends JFrame implements KeyListener, ActionListener,
         }
     }
 
-    @Override
-    public void keyPressed(KeyEvent e) {
-
-        Object src = e.getSource();
-        if (src == tfMessage && e.getKeyCode()==KeyEvent.VK_ENTER) {
-            sendMessage(tfMessage.getText());
-        }
-    }
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
@@ -169,6 +151,16 @@ public class ClientGUI extends JFrame implements KeyListener, ActionListener,
                 e.getMessage(), ste[0]);
         JOptionPane.showMessageDialog(this, msg, "Exception", JOptionPane.ERROR_MESSAGE);
         System.exit(1);
+    }
+
+// addKeyListener
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+        Object src = e.getSource();
+        if (src == tfMessage && e.getKeyCode()==KeyEvent.VK_ENTER) {
+            sendMessage(tfMessage.getText());
+        }
     }
 
     @Override
