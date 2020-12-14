@@ -5,9 +5,12 @@ import java.util.Arrays;
 class MyThread extends Thread{
 
     private float[] array;
+    private int K;
 
-    MyThread(float[]inputArray){
+    MyThread(float[]inputArray, int k){
+
         this.array = inputArray;
+        this.K = k;
     }
 
     public float [] getResult() {
@@ -17,29 +20,29 @@ class MyThread extends Thread{
     @Override
     public void run() {
 
-        array = arrayProc(array);
+        array = arrayProc(array, K);
 
     }
 
-        public static float [] arrayProc(float [] arrayInput){
+        public static float [] arrayProc(float [] arrayInput, int k){
 
-            float [] result = new float[arrayInput.length];
+          //  float [] result = new float[arrayInput.length];
 
             for (int i = 0; i < arrayInput.length ; i++) {
-                result[i] = (float)(arrayInput[i] * Math.sin(0.2f + i / 5));
+                arrayInput[i] = (float)(arrayInput[i] * Math.sin(0.2f + (k + i) / 5) * Math.cos(0.2f + (k + i) / 5) * Math.cos(0.4f + (k + i) / 2));
             }
 
-            return result;
+            return arrayInput;
         }
 }
 
 public class Main {
     static final int size = 100000000;
     // получилось что 100 потоков делают задачу за минимальное время
-    static final int countThread = 100;
+    static final int countThread = 10;
     static final int h = size / countThread;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         float [] arrayInput = arrayInitialization(size);
 
@@ -47,12 +50,17 @@ public class Main {
         long startTime = System.currentTimeMillis();
         float [] array_1 = arrayProc(arrayInput);
         System.out.println("Время выполнения " + (System.currentTimeMillis() - startTime));
+
+//        for (int i = 0; i < array_1.length; i++) {
+//            System.out.println(array_1[i]);
+//        }
         System.out.println("=========================ПЕРВЫЙ МЕТОД ОКОНЧЕН=============================");
         array_1 = null;
 
         System.out.println("=========================ВТОРОЙ МЕТОД СТАРТУЕМ=============================");
         int lengthTempArray;
         MyThread[] thread = new MyThread[countThread];
+        float[] array_2 = new float[size];
 
         startTime = System.currentTimeMillis();
 
@@ -61,29 +69,27 @@ public class Main {
             lengthTempArray = (i == countThread - 1)?h + (arrayInput.length % h) :h;
             float [] arrayTemp = new float[lengthTempArray];
             System.arraycopy(arrayInput, h * i, arrayTemp, 0, lengthTempArray);
-            thread[i] = new MyThread(arrayTemp);
+            thread[i] = new MyThread(arrayTemp, h * i);
             thread[i].setName("thread_" + i);
             thread[i].start();
         }
 
         // ожидаем завершения потоков
-        float[] array_2 = new float[size];
-        int countThreadEnd = 0;
-        while (countThreadEnd != countThread){
-            for (int i = 0; i < countThread ; i++) {
-                if(thread[i] == null || thread[i].isAlive()){
-                    continue;
-                }
-                // если поток завершился начинаем склеивать немедлено не будем ждать остальные потоки.
-                lengthTempArray = (i == countThread - 1)?h + (arrayInput.length % h) :h;
-                System.arraycopy(thread[i].getResult(), 0, array_2, h * i, lengthTempArray);
-                // больше этот поток не нужен убиваем его
-                thread[i] = null;
-                countThreadEnd ++;
-            }
+        for (int i = 0; i < countThread ; i++) {
+            thread[i].join();
+            lengthTempArray = (i == countThread - 1)?h + (arrayInput.length % h) :h;
+            System.arraycopy(thread[i].getResult(), 0, array_2, h * i, lengthTempArray);
+            //System.out.print(String.format("поток %s закончил свою работу\n ", thread[i].getName()));
+            // больше этот поток не нужен убиваем его
+            //thread[i] = null;
         }
+
         System.out.println("Время выполнения " + (System.currentTimeMillis() - startTime));
         System.out.println("=========================ВТОРОЙ МЕТОД ОКОНЧЕН=============================");
+
+//        for (int i = 0; i < array_2.length; i++) {
+//            System.out.println(array_2[i]);
+//        }
 
     }
 
@@ -92,7 +98,7 @@ public class Main {
         float [] result = new float[arrayInput.length];
 
         for (int i = 0; i < arrayInput.length ; i++) {
-            result[i] = (float)(arrayInput[i] * Math.sin(0.2f + i / 5));
+             result[i] = (float)(arrayInput[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
         }
 
         return result;
