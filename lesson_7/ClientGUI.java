@@ -200,7 +200,7 @@ public class ClientGUI extends JFrame implements ActionListener,
         if(arrMsg.length >= 4 && arrMsg[0].equals(Protocol.TYPE_BROADCAST)){
             putLog(DATE_FORMAT.format(Long.parseLong(arrMsg[1])) + arrMsg[2] + ": " + arrMsg[3]);
         }
-		else {
+		else{
 			putLog("не известный формат сообщения: " + msg);	
 		}
 
